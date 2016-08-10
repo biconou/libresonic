@@ -248,6 +248,12 @@
         </dependency>
 
         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>javax.servlet.jsp-api</artifactId>
             <version>2.3.0</version>
@@ -266,17 +272,6 @@
             <version>1.5.5</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
-            <version>1.5.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>taglibs</groupId>
-            <artifactId>standard</artifactId>
-            <version>1.1.2</version>
-        </dependency>
 
         <dependency>
             <groupId>taglibs</groupId>
@@ -309,12 +304,6 @@
             <groupId>org.fourthline.cling</groupId>
             <artifactId>cling-support</artifactId>
             <version>2.0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.seamless</groupId>
-            <artifactId>seamless-http</artifactId>
-            <version>1.1.0</version>
         </dependency>
 
         <dependency>
@@ -437,6 +426,17 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>${jetty.version}</version>
+                <configuration>
+                    <systemProperties>
+                        <systemProperty>
+                            <name>libresonic.home</name>
+                            <value>${basedir}/run/libresonic_home</value>
+                        </systemProperty>
+                    </systemProperties>
+                    <webApp>
+                        <contextPath>/libresonic</contextPath>
+                    </webApp>
+                </configuration>
             </plugin>
 
         </plugins>
