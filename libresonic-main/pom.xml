@@ -243,6 +243,17 @@
         </dependency>
 
         <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>javax.servlet.jsp-api</artifactId>
             <version>2.3.0</version>
@@ -251,7 +262,7 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-            <version>1.2</version>
+            <version>1.1.2</version>
         </dependency>
 
         <dependency>
@@ -425,6 +436,7 @@
                         <contextPath>/libresonic</contextPath>
                     </webApp>
                 </configuration>
+                <version>${jetty.version}</version>
             </plugin>
 
         </plugins>
