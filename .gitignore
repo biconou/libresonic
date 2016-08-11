@@ -9,6 +9,12 @@
 # Redistributed under GPLv3+, as allowed by LICENSE found there
 # Copyright (c) 2014 Github, Inc.
 #
+
+## libresonic specific
+
+# libresonic home default directory used with jetty-maven-plugin
+libresonic-main/run
+
 ## Windows.gitignore
 # Windows image file caches
 Thumbs.db
