@@ -6,7 +6,6 @@ package org.libresonic.player.server;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.net.URL;
@@ -32,18 +31,9 @@ public class Jetty {
 
         ProtectionDomain protectionDomain =
                 Jetty.class.getProtectionDomain();
-        URL locationUrl =
+        URL location =
                 protectionDomain.getCodeSource().getLocation();
-
-        String location = locationUrl.toExternalForm();
-        String baseLocation = null;
-        if (location.endsWith("/target/classes/")) {
-            // we are in developement mode
-            baseLocation = location.replace("/target/classes/","");
-            context.setWar(baseLocation + "/src/main/webapp");
-        }
-
-        context.setClassLoader(new WebAppClassLoader(Jetty.class.getClassLoader(), context));
+        context.setWar(location.toExternalForm());
 
         server.setHandler(context);
         while (true) {
