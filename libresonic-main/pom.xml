@@ -243,7 +243,6 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${servlet.version}</version>
-          <!--  <scope>provided</scope> -->
         </dependency>
 
         <dependency>
@@ -260,13 +259,11 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>apache-jsp</artifactId>
             <version>${jetty.version}</version>
-          <!--  <type>jar</type> -->
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>apache-jstl</artifactId>
             <version>${jetty.version}</version>
-          <!--  <type>pom</type> -->
         </dependency>
 
 
