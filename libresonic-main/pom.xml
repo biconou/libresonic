@@ -12,10 +12,12 @@
         <version>6.1.beta1</version>
     </parent>
 
+
     <properties>
         <servlet.version>3.1.0</servlet.version>
+        <jsp-api.version>2.3.0</jsp-api.version>
+        <jstl.version>1.2</jstl.version>
         <jetty.version>9.3.11.v20160721</jetty.version>
-        <jetty.jsp.version>9.2.18.v20160721</jetty.jsp.version>
     </properties>
 
     <dependencies>
@@ -246,31 +248,16 @@
         </dependency>
 
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-annotations</artifactId>
-            <version>${jetty.version}</version>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>javax.servlet.jsp-api</artifactId>
+            <version>${jsp-api.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-            <version>${jetty.version}</version>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <version>${jstl.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>apache-jsp</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>apache-jstl</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-
-
-
-
-
 
         <dependency>
             <groupId>javax.mail</groupId>
@@ -404,16 +391,7 @@
 
     <build>
         <finalName>libresonic</finalName>
-            <!-- This resources declaration is needed by the building of a standalone jar -->
-            <resources>
-                <resource>
-                    <directory>src/main/resources</directory>
-                </resource>
-                <resource>
-                    <directory>src/main/webapp</directory>
-                </resource>
-            </resources>
-            <plugins>
+        <plugins>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -455,117 +433,7 @@
                     </webApp>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-                <executions>
-                    <execution>
-                        <id>package-jar</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- The shade plugin is used to produce a standalone executable jar file
-            beside the war package.
-            Tricky, spent a lot of time on stackoverflow, thus touch it carefully -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Avoid error when running the executable jar
-                            See http://stackoverflow.com/questions/999489/invalid-signature-file-when-attempting-to-run-a-jar
-                            -->
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>org.libresonic.player.server.jetty.Main</mainClass>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
-                                    <projectName>Apache CXF</projectName>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/spring.handlers</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/services/com.sun.tools.xjc.Plugin</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/spring.schemas</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/cxf/cxf.extension</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
-                                    <resource>META-INF/extensions.xml</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
-                                    <resource>META-INF/cxf/extensions.xml</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                    <resource>META-INF/cxf/bus-extensions.txt</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
-                                    <resource>META-INF/cxf/bus-extensions.xml</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
-                                    <resource>META-INF/wsdl.plugin.xml</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
-                                    <resource>META-INF/tools.service.validator.xml</resource>
-                                </transformer>
-                                <transformer implementation="org.apache.cxf.maven.PluginTransformer">
-                                    <resource>META-INF/tools-plugin.xml</resource>
-                                </transformer>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.XmlAppendingTransformer">
-                                    <resource>META-INF/cxf/java2wsbeans.xml</resource>
-                                </transformer>
-                                <transformer implementation="org.apache.cxf.maven.CXFAllTransformer" />
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-buildtools</artifactId>
-                        <version>2.2.12</version>
-                        <type>jar</type>
-                        <scope>compile</scope>
-                    </dependency>
-                </dependencies>
-            </plugin>
+
         </plugins>
     </build>
 </project>
