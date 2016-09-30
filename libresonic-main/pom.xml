@@ -18,6 +18,7 @@
         <jsp-api.version>2.3.0</jsp-api.version>
         <jstl.version>1.2</jstl.version>
         <jetty.version>9.3.11.v20160721</jetty.version>
+        <metrics.version>3.1.0</metrics.version>
     </properties>
 
     <dependencies>
