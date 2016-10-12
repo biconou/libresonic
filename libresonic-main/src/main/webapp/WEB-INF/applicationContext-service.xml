@@ -178,7 +178,6 @@
 
     <bean id="jukeboxService" class="org.libresonic.player.service.JukeboxService">
         <property name="statusService" ref="statusService"/>
-        <property name="transcodingService" ref="transcodingService"/>
         <property name="audioScrobblerService" ref="audioScrobblerService"/>
         <property name="mediaFileService" ref="mediaFileService"/>
         <property name="settingsService" ref="settingsService"/>

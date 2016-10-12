@@ -371,6 +371,12 @@
             <version>${cxf.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.biconou</groupId>
+            <artifactId>AudioPlayer</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
     <profiles>
