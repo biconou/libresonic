@@ -28,7 +28,7 @@ import java.io.File;
 import java.util.List;
 
 /**
- * Plays music on on a remote cmus.
+ *
  *
  * @author Rémi Cocula
  */
@@ -68,22 +68,21 @@ public class JukeboxService  {
                 @Override
                 public void onEnd(int index, File file) {
                     onSongEnd(libresonicPlayer,currentPlayingFile);
-                    libresonicPlayer.getPlayQueue().next();
                 }
 
                 @Override
                 public void onFinished() {
-
+                    // Nothing to do here
                 }
 
                 @Override
                 public void onStop() {
-
+                    // Nothing to do here
                 }
 
                 @Override
                 public void onPause() {
-
+                    // Nothing to do here
                 }
 
             });
@@ -116,18 +115,9 @@ public class JukeboxService  {
                 } else {
                     if (currentFileInPlayQueue != null) {
                         audioPlayer.stop();
-                        audioPlayer.deletePlayList();
-                        audioPlayer.addToPlayList(currentFileInPlayQueue.getFile().getAbsolutePath());
+                        audioPlayer.setPlayList(libresonicPlayer.getPlayQueue());
                         if (!audioPlayer.isPlaying()) {
                             audioPlayer.play();
-                        }
-                        LOG.debug("load the other songs in play queue starting with the next file in queue");
-                        List<MediaFile> files = libresonicPlayer.getPlayQueue().getFiles();
-                        int nextAfterCurrentInPlayQueue = libresonicPlayer.getPlayQueue().getIndex() + 1;
-                        for (int i=nextAfterCurrentInPlayQueue; i<files.size(); i++) {
-                            String fileName = files.get(i).getFile().getAbsolutePath();
-                            // fileName can not be null as it comes from a file name in queue.
-                            audioPlayer.addToPlayList(fileName);
                         }
                     }
                 }
