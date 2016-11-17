@@ -5,7 +5,6 @@ import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import junit.framework.Assert;
-import junit.framework.Test;
 import junit.framework.TestCase;
 import org.libresonic.player.TestCaseUtils;
 import org.libresonic.player.dao.*;
@@ -53,7 +52,7 @@ public class MediaScannerServiceTestCase extends TestCase {
 
     System.setProperty("libresonic.home", TestCaseUtils.libresonicHomePathForTest());
 
-    TestCaseUtils.deleteLibresonicHome();
+    TestCaseUtils.cleanLibresonicHomeForTest();
 
     // load spring context
     ApplicationContext context = TestCaseUtils.loadSpringApplicationContext(baseResources);
@@ -72,9 +71,6 @@ public class MediaScannerServiceTestCase extends TestCase {
    * Tests the MediaScannerService by scanning the test media library into an empty database.
    */
   public void testScanLibrary() {
-
-    //startMetricsReport();
-
 
     Timer globalTimer = metrics.timer(MetricRegistry.name(MediaScannerServiceTestCase.class, "Timer.global"));
 
@@ -108,9 +104,8 @@ public class MediaScannerServiceTestCase extends TestCase {
     Assert.assertEquals(5,allAlbums.size());
     System.out.println("--- *********************** ---");
 
-
-
     List<MediaFile> listeSongs = mediaFileDao.getSongsByGenre("Baroque Instrumental",0,0,musicFolderDao.getAllMusicFolders());
+    Assert.assertEquals(2,listeSongs.size());
 
     // display out metrics report
     ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
@@ -121,24 +116,5 @@ public class MediaScannerServiceTestCase extends TestCase {
 
     System.out.print("End");
   }
-
-  /**
-   * Starts a Metrics Console and JMX reporter.
-   */
-  private void startMetricsReport() {
-
-    // Reporter console
-    ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
-            .convertRatesTo(TimeUnit.SECONDS.SECONDS)
-            .convertDurationsTo(TimeUnit.MILLISECONDS)
-            .build();
-    reporter.start(10, TimeUnit.SECONDS);
-
-    // Jmx reporter
-    final JmxReporter jmxReporter = JmxReporter.forRegistry(metrics).build();
-    jmxReporter.start();
-  }
-
-
 
 }
