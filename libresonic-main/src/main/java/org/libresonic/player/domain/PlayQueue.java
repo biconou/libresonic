@@ -267,7 +267,8 @@ public class PlayQueue implements PlayList {
         MediaFile currentFile = getCurrentFile();
         Collections.shuffle(files);
         if (currentFile != null) {
-            index = files.indexOf(currentFile);
+            Collections.swap(files, files.indexOf(currentFile), 0);
+            index = 0;
         }
     }
 
