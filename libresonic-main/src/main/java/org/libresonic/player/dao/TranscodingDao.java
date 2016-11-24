@@ -23,7 +23,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 
 import org.libresonic.player.Logger;
 import org.libresonic.player.domain.Transcoding;
@@ -82,8 +82,11 @@ public class TranscodingDao extends AbstractDao {
      * @param transcoding The transcoding to create.
      */
     public synchronized void createTranscoding(Transcoding transcoding) {
-        int id = getJdbcTemplate().queryForInt("select max(id) + 1 from transcoding2");
-        transcoding.setId(id);
+        Integer existingMax = getJdbcTemplate().queryForObject("select max(id) from transcoding2", Integer.class);
+        if(existingMax == null) {
+            existingMax = 0;
+        }
+        transcoding.setId(existingMax + 1);
         String sql = "insert into transcoding2 (" + COLUMNS + ") values (" + questionMarks(COLUMNS) + ")";
         update(sql, transcoding.getId(), transcoding.getName(), transcoding.getSourceFormats(),
                 transcoding.getTargetFormat(), transcoding.getStep1(),
@@ -115,7 +118,7 @@ public class TranscodingDao extends AbstractDao {
                 transcoding.getStep3(), transcoding.isDefaultActive(), transcoding.getId());
     }
 
-    private static class TranscodingRowMapper implements ParameterizedRowMapper<Transcoding> {
+    private static class TranscodingRowMapper implements RowMapper<Transcoding> {
         public Transcoding mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Transcoding(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
                     rs.getString(6), rs.getString(7), rs.getBoolean(8));
