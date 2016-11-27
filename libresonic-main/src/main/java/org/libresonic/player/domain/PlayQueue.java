@@ -27,7 +27,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import com.github.biconou.AudioPlayer.PlayList;
+import com.github.biconou.AudioPlayer.api.PlayList;
 import org.apache.commons.lang.StringUtils;
 
 /**

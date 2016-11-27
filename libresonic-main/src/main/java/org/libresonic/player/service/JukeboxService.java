@@ -19,13 +19,13 @@
 package org.libresonic.player.service;
 
 import com.github.biconou.AudioPlayer.JavaPlayer;
-import com.github.biconou.AudioPlayer.PlayerListener;
+import com.github.biconou.AudioPlayer.api.PlayerListener;
 import org.libresonic.player.Logger;
 import org.libresonic.player.domain.*;
+import org.libresonic.player.domain.Player;
 import org.libresonic.player.util.FileUtil;
 
 import java.io.File;
-import java.util.List;
 
 /**
  *
@@ -42,7 +42,7 @@ public class JukeboxService  {
     private SettingsService settingsService;
     private SecurityService securityService;
 
-    com.github.biconou.AudioPlayer.Player audioPlayer = null;
+    com.github.biconou.AudioPlayer.api.Player audioPlayer = null;
     private MediaFile currentPlayingFile;
     private TransferStatus status;
 
@@ -57,7 +57,7 @@ public class JukeboxService  {
     public synchronized void updateJukebox(Player libresonicPlayer, int offset) throws Exception {
 
         if (audioPlayer == null) {
-            audioPlayer = new JavaPlayer();
+            audioPlayer =  new JavaPlayer();
             audioPlayer.registerListener(new PlayerListener() {
                 @Override
                 public void onBegin(int index, File currentFile) {
@@ -179,6 +179,7 @@ public class JukeboxService  {
     public synchronized void setGain(float gain) {
 
         this.gain = gain;
+        audioPlayer.setGain(this.gain);
     }
 
 
