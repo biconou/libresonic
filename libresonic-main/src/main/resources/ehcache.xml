@@ -223,6 +223,14 @@ used with JMX monitors.
            diskSpoolBufferSizeMB="1"
            statistics="true"/>
 
+    <cache name="playerMemoryCache"
+           maxElementsInMemory="1000"
+           eternal="false"
+           timeToIdleSeconds="60"
+           timeToLiveSeconds="0"
+           overflowToDisk="false"
+           statistics="true"/>
+
     <!--
     Sample caches. Following are some example caches. Remove these before use.
     -->

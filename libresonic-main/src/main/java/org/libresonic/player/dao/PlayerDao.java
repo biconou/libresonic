@@ -19,6 +19,8 @@
  */
 package org.libresonic.player.dao;
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.libresonic.player.Logger;
 import org.libresonic.player.domain.*;
 import org.springframework.jdbc.core.RowMapper;
@@ -41,6 +43,20 @@ public class PlayerDao extends AbstractDao {
 
     private PlayerRowMapper rowMapper = new PlayerRowMapper();
     private Map<String, PlayQueue> playlists = Collections.synchronizedMap(new HashMap<String, PlayQueue>());
+    private Ehcache playerMemoryCache;
+
+    private void putInMemoryCache(Player player) {
+        playerMemoryCache.put(new Element(player.getId(), player));
+    }
+
+    private Player getFromMemoryCache(String playerId) {
+        Element element = playerMemoryCache.get(playerId);
+        return element == null ? null : (Player) element.getObjectValue();
+    }
+
+    public void clearMemoryCache() {
+        playerMemoryCache.removeAll();
+    }
 
     /**
      * Returns all players.
@@ -77,8 +93,18 @@ public class PlayerDao extends AbstractDao {
      * @return The player with the given ID, or <code>null</code> if no such player exists.
      */
     public Player getPlayerById(String id) {
-        String sql = "select " + QUERY_COLUMNS + " from player where id=?";
-        return queryOne(sql, rowMapper, id);
+        if (id != null) {
+            Player foundPlayer = getFromMemoryCache(id);
+            if (foundPlayer == null) {
+                String sql = "select " + QUERY_COLUMNS + " from player where id=?";
+                foundPlayer = queryOne(sql, rowMapper, id);
+                if (foundPlayer != null) {
+                    putInMemoryCache(foundPlayer);
+                }
+            }
+            return foundPlayer;
+        }
+        return null;
     }
 
     /**
@@ -101,6 +127,8 @@ public class PlayerDao extends AbstractDao {
                player.getTechnology().name(), player.getClientId());
         addPlaylist(player);
 
+        clearMemoryCache();
+
         LOG.info("Created player " + id + '.');
     }
 
@@ -113,6 +141,8 @@ public class PlayerDao extends AbstractDao {
         String sql = "delete from player where id=?";
         update(sql, id);
         playlists.remove(id);
+
+        clearMemoryCache();
     }
 
 
@@ -155,6 +185,8 @@ public class PlayerDao extends AbstractDao {
                player.getIpAddress(), player.isAutoControlEnabled(), player.isM3uBomEnabled(),
                player.getLastSeen(), player.getTranscodeScheme().name(), player.isDynamicIp(),
                player.getTechnology().name(), player.getClientId(), player.getId());
+
+        clearMemoryCache();
     }
 
     private void addPlaylist(Player player) {
@@ -187,5 +219,9 @@ public class PlayerDao extends AbstractDao {
             addPlaylist(player);
             return player;
         }
+    }
+
+    public void setPlayerMemoryCache(Ehcache playerMemoryCache) {
+        this.playerMemoryCache = playerMemoryCache;
     }
 }
