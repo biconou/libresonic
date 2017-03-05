@@ -46,6 +46,7 @@ public class PlayQueueService {
 
     private PlayerService playerService;
     private JukeboxService jukeboxService;
+    private JukeboxJavaService jukeboxJavaService;
     private TranscodingService transcodingService;
     private SettingsService settingsService;
     private MediaFileService mediaFileService;
@@ -612,18 +613,28 @@ public class PlayQueueService {
     }
 
     public void setGain(float gain) {
-        jukeboxService.setGain(gain);
+        // TODO faire la distinction entre les deux types de jukebox
+        //jukeboxService.setGain(gain);
+        jukeboxJavaService.setGain(gain);
     }
 
     private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist) throws Exception {
         return convert(request, player, serverSidePlaylist, 0);
     }
 
+    private void updateJukebox(Player player, int offset) throws Exception {
+        if (player.getTechnology() == PlayerTechnology.JUKEBOX) {
+            jukeboxService.updateJukebox(player, offset);
+        } else if (player.getTechnology() == PlayerTechnology.JAVA_JUKEBOX) {
+            jukeboxJavaService.updateJukebox(player, offset);
+        }
+    }
+
     private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist, int offset) throws Exception {
         String url = request.getRequestURL().toString();
 
         if (serverSidePlaylist && player.isJukebox()) {
-            jukeboxService.updateJukebox(player, offset);
+            updateJukebox(player, offset);
         }
         boolean isCurrentPlayer = player.getIpAddress() != null && player.getIpAddress().equals(request.getRemoteAddr());
 
@@ -707,6 +718,10 @@ public class PlayQueueService {
 
     public void setJukeboxService(JukeboxService jukeboxService) {
         this.jukeboxService = jukeboxService;
+    }
+
+    public void setJukeboxJavaService(JukeboxJavaService jukeboxJavaService) {
+        this.jukeboxJavaService = jukeboxJavaService;
     }
 
     public void setTranscodingService(TranscodingService transcodingService) {

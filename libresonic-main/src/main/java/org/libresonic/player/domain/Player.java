@@ -120,7 +120,7 @@ public class Player {
     }
 
     public boolean isJukebox() {
-        return technology == PlayerTechnology.JUKEBOX;
+        return (technology == PlayerTechnology.JUKEBOX || technology == PlayerTechnology.JAVA_JUKEBOX);
     }
 
     public boolean isExternal() {
