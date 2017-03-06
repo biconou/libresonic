@@ -205,6 +205,9 @@
                                 <!-- Needed for libresonic-booter to load Libresonic correctly -->
                                 <ignoredUnusedDeclaredDependency>org.springframework.security:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.springframework.boot:spring-boot*</ignoredUnusedDeclaredDependency>
+                                <!-- Needed by AudioPlayer for jukebox -->
+                                <ignoredUnusedDeclaredDependency>org.jflac:jflac-codec*</ignoredUnusedDeclaredDependency>
+                                <ignoredUnusedDeclaredDependency>com.googlecode.soundlibs*</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </execution>
