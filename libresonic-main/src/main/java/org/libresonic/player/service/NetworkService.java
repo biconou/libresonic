@@ -42,11 +42,8 @@ public class NetworkService {
 
     public static String getBaseUrl(HttpServletRequest request) {
         try {
-            URI uri;
-            try {
-                uri = calculateProxyUri(request);
-            } catch (Exception e) {
-                LOG.debug("Could not calculate proxy uri", e);
+            URI uri = calculateProxyUri(request);
+            if (uri == null) {
                 uri = calculateNonProxyUri(request);
             }
 
@@ -63,7 +60,8 @@ public class NetworkService {
         if(!isValidXForwardedHost(xForardedHost)) {
             xForardedHost = request.getHeader(X_FORWARDED_SERVER);
             if(!isValidXForwardedHost(xForardedHost)) {
-                throw new RuntimeException("Cannot calculate proxy uri without HTTP header " + X_FORWARDED_HOST);
+                LOG.debug("Cannot calculate proxy uri without HTTP header " + X_FORWARDED_HOST);
+                return null;
             }
         }
 
