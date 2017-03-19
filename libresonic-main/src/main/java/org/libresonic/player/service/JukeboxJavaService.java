@@ -4,7 +4,6 @@ import com.github.biconou.AudioPlayer.JavaPlayer;
 import com.github.biconou.AudioPlayer.api.PlayerListener;
 import org.libresonic.player.Logger;
 import org.libresonic.player.domain.*;
-import org.libresonic.player.domain.Player;
 import org.libresonic.player.util.FileUtil;
 
 import java.io.File;
@@ -15,7 +14,7 @@ import java.io.File;
  *
  * @author Rémi Cocula
  */
-public class JukeboxJavaService  {
+public class JukeboxJavaService {
 
     private static final Logger LOG = Logger.getLogger(JukeboxService.class);
 
@@ -114,9 +113,11 @@ public class JukeboxJavaService  {
 
 
     public synchronized int getPosition() {
-        // TODO do something ?
-        return 0;
-        // return audioPlayer == null ? 0 : offset + audioPlayer.getPosition();
+        if (audioPlayer == null) {
+            return 0;
+        } else {
+            return audioPlayer.getPlayingInfos().currentAudioPositionInSeconds();
+        }
     }
 
     private void onSongStart(Player player,MediaFile file) {
@@ -171,5 +172,10 @@ public class JukeboxJavaService  {
 
     public void setMediaFileService(MediaFileService mediaFileService) {
         this.mediaFileService = mediaFileService;
+    }
+
+    public float getGain() {
+        // TODO
+        return 0;
     }
 }

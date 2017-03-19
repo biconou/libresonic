@@ -664,7 +664,14 @@ public class PlayQueueService {
                     coverArtUrl, remoteCoverArtUrl));
         }
         boolean isStopEnabled = playQueue.getStatus() == PlayQueue.Status.PLAYING && !player.isExternalWithPlaylist();
-        float gain = jukeboxService.getGain();
+
+        float gain = 0.0f;
+        if (player.getTechnology() == PlayerTechnology.JUKEBOX) {
+            gain = jukeboxService.getGain();
+        } else if (player.getTechnology() == PlayerTechnology.JAVA_JUKEBOX) {
+            gain = jukeboxJavaService.getGain();
+        }
+
         return new PlayQueueInfo(entries, isStopEnabled, playQueue.isRepeatEnabled(), playQueue.isRadioEnabled(), serverSidePlaylist, gain);
     }
 
