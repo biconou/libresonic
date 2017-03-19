@@ -32,38 +32,11 @@ public class JukeboxJavaService  {
     private float gain = 0.5f;
     private MediaFileService mediaFileService;
 
+
     public synchronized void updateJukebox(Player libresonicPlayer, int offset) throws Exception {
 
         if (audioPlayer == null) {
-            audioPlayer =  new JavaPlayer();
-            audioPlayer.registerListener(new PlayerListener() {
-                @Override
-                public void onBegin(int index, File currentFile) {
-                    currentPlayingFile = libresonicPlayer.getPlayQueue().getCurrentFile();
-                    onSongStart(libresonicPlayer,currentPlayingFile);
-                }
-
-                @Override
-                public void onEnd(int index, File file) {
-                    onSongEnd(libresonicPlayer,currentPlayingFile);
-                }
-
-                @Override
-                public void onFinished() {
-                    // Nothing to do here
-                }
-
-                @Override
-                public void onStop() {
-                    // Nothing to do here
-                }
-
-                @Override
-                public void onPause() {
-                    // Nothing to do here
-                }
-
-            });
+            initAudioPlayer(libresonicPlayer);
         }
 
         // Control user authorizations
@@ -86,7 +59,7 @@ public class JukeboxJavaService  {
                 audioPlayer.play();
             } else {
                 if (sameFile) {
-                    //TODO set position
+                    audioPlayer.setPos(offset);
                 } else {
                     if (currentFileInPlayQueue != null) {
                         audioPlayer.stop();
@@ -107,7 +80,37 @@ public class JukeboxJavaService  {
         }
     }
 
+    private void initAudioPlayer(final Player libresonicPlayer) {
+        audioPlayer = new JavaPlayer();
+        audioPlayer.registerListener(new PlayerListener() {
+            @Override
+            public void onBegin(int index, File currentFile) {
+                currentPlayingFile = libresonicPlayer.getPlayQueue().getCurrentFile();
+                onSongStart(libresonicPlayer, currentPlayingFile);
+            }
 
+            @Override
+            public void onEnd(int index, File file) {
+                onSongEnd(libresonicPlayer, currentPlayingFile);
+            }
+
+            @Override
+            public void onFinished() {
+                // Nothing to do here
+            }
+
+            @Override
+            public void onStop() {
+                // Nothing to do here
+            }
+
+            @Override
+            public void onPause() {
+                // Nothing to do here
+            }
+
+        });
+    }
 
 
     public synchronized int getPosition() {
