@@ -2,9 +2,9 @@ package org.libresonic.player.service;
 
 import com.github.biconou.AudioPlayer.JavaPlayer;
 import com.github.biconou.AudioPlayer.api.PlayerListener;
-import org.libresonic.player.Logger;
 import org.libresonic.player.domain.*;
 import org.libresonic.player.util.FileUtil;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -16,7 +16,7 @@ import java.io.File;
  */
 public class JukeboxJavaService {
 
-    private static final Logger LOG = Logger.getLogger(JukeboxService.class);
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(JukeboxJavaService.class);
 
     private AudioScrobblerService audioScrobblerService;
     private StatusService statusService;
@@ -28,11 +28,12 @@ public class JukeboxJavaService {
     private TransferStatus status;
 
 
-    private float gain = 0.5f;
     private MediaFileService mediaFileService;
 
 
     public synchronized void updateJukebox(Player libresonicPlayer, int offset) throws Exception {
+
+        log.debug("begin updateJukebox");
 
         if (audioPlayer == null) {
             initAudioPlayer(libresonicPlayer);
@@ -41,39 +42,42 @@ public class JukeboxJavaService {
         // Control user authorizations
         User user = securityService.getUserByName(libresonicPlayer.getUsername());
         if (!user.isJukeboxRole()) {
-            LOG.warn(user.getUsername() + " is not authorized for jukebox playback.");
+            log.warn("{} is not authorized for jukebox playback.",user.getUsername());
             return;
         }
 
+        log.debug("PlayQueue.Status is {}",libresonicPlayer.getPlayQueue().getStatus());
         if (libresonicPlayer.getPlayQueue().getStatus() == PlayQueue.Status.PLAYING) {
             MediaFile currentFileInPlayQueue;
             synchronized (libresonicPlayer.getPlayQueue()) {
                 currentFileInPlayQueue = libresonicPlayer.getPlayQueue().getCurrentFile();
             }
+            log.debug("Current file in play queue is {}",currentFileInPlayQueue.getName());
 
             boolean sameFile = currentFileInPlayQueue != null && currentFileInPlayQueue.equals(currentPlayingFile);
             boolean paused = audioPlayer.isPaused();
 
             if (sameFile && paused) {
+                log.debug("Same file and paused -> try to resume playing");
                 audioPlayer.play();
             } else {
                 if (sameFile) {
+                    log.debug("Same file and offset={} -> try to move to this position",offset);
                     audioPlayer.setPos(offset);
                 } else {
+                    log.debug("Different file to play -> start a new play list");
                     if (currentFileInPlayQueue != null) {
-                        audioPlayer.stop();
                         audioPlayer.setPlayList(libresonicPlayer.getPlayQueue());
-                        if (!audioPlayer.isPlaying()) {
-                            audioPlayer.play();
-                        }
+                        audioPlayer.play();
                     }
                 }
             }
         } else {
             try {
+                log.debug("try to pause player");
                 audioPlayer.pause();
             } catch (Exception e) {
-                LOG.error("Error trying to pause",e);
+                log.error("Error trying to pause",e);
                 throw e;
             }
         }
@@ -109,6 +113,7 @@ public class JukeboxJavaService {
             }
 
         });
+        log.debug("New audio player {} has been initialized.",audioPlayer.toString());
     }
 
 
@@ -121,7 +126,7 @@ public class JukeboxJavaService {
     }
 
     private void onSongStart(Player player,MediaFile file) {
-        LOG.info("[onSongStart] " + player.getUsername() + " starting jukebox for \"" + FileUtil.getShortPath(file.getFile()) + "\"");
+        log.info("[onSongStart] {} starting jukebox for \"{}\"",player.getUsername(),FileUtil.getShortPath(file.getFile()));
         if (status != null) {
             statusService.removeStreamStatus(status);
             status = null;
@@ -134,7 +139,7 @@ public class JukeboxJavaService {
     }
 
     private void onSongEnd(Player player,MediaFile file) {
-        LOG.info("[onSongEnd] " + player.getUsername() + " stopping jukebox for \"" + FileUtil.getShortPath(file.getFile()) + "\"");
+        log.info("[onSongEnd] {} stopping jukebox for \"{}\"",player.getUsername(),FileUtil.getShortPath(file.getFile()));
         if (status != null) {
             statusService.removeStreamStatus(status);
             status = null;
@@ -148,9 +153,18 @@ public class JukeboxJavaService {
         }
     }
 
+    public float getGain() {
+        if (audioPlayer != null) {
+            return audioPlayer.getGain();
+        }
+        return 0.5f;
+    }
+
     public synchronized void setGain(float gain) {
-        this.gain = gain;
-        audioPlayer.setGain(this.gain);
+        log.debug("setGain : gain={}",gain);
+        if (audioPlayer != null) {
+            audioPlayer.setGain(gain);
+        }
     }
 
 
@@ -174,8 +188,4 @@ public class JukeboxJavaService {
         this.mediaFileService = mediaFileService;
     }
 
-    public float getGain() {
-        // TODO
-        return 0;
-    }
 }
