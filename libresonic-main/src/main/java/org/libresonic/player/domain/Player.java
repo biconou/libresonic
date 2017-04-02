@@ -123,6 +123,10 @@ public class Player {
         return (technology == PlayerTechnology.JUKEBOX || technology == PlayerTechnology.JAVA_JUKEBOX);
     }
 
+    public boolean isJavaJukebox() {
+        return (technology == PlayerTechnology.JAVA_JUKEBOX);
+    }
+
     public boolean isExternal() {
         return technology == PlayerTechnology.EXTERNAL;
     }
