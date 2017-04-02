@@ -6,9 +6,6 @@ import org.libresonic.player.Logger;
 import org.libresonic.player.filter.*;
 import org.libresonic.player.spring.LibresonicPropertySourceConfigurer;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.autoconfigure.jmx.JmxAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -29,9 +26,6 @@ import java.lang.reflect.Method;
 
 @SpringBootApplication(exclude = {
         JmxAutoConfiguration.class,
-        JdbcTemplateAutoConfiguration.class,
-        DataSourceAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
         LiquibaseAutoConfiguration.class})
 @Configuration
 @ImportResource(value = {"classpath:/applicationContext-service.xml",

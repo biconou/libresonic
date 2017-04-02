@@ -12,4 +12,13 @@
         <property name="username" value="sa" />
         <property name="password" value="" />
     </bean>
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+    <bean id="daoHelper" class="org.libresonic.player.dao.GenericDaoHelper">
+        <constructor-arg name="dataSource" ref="dataSource" />
+    </bean>
+
 </beans>

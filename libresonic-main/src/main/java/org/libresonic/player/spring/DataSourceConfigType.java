@@ -3,5 +3,6 @@ package org.libresonic.player.spring;
 public enum DataSourceConfigType {
     JNDI,
     EMBED,
-    LEGACY
+    LEGACY,
+    SPRING_BOOT
 }

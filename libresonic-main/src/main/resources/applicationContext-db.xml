@@ -6,16 +6,10 @@
     <import resource="applicationContext-db-jndi.xml" />
     <import resource="applicationContext-db-embed.xml" />
     <import resource="applicationContext-db-legacy.xml" />
+    <import resource="applicationContext-db-spring_boot.xml" />
 
     <tx:annotation-driven/>
 
-    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <constructor-arg ref="dataSource"/>
-    </bean>
-
-    <bean id="daoHelper" class="org.libresonic.player.dao.GenericDaoHelper">
-        <constructor-arg name="dataSource" ref="dataSource" />
-    </bean>
 
     <bean id="rollbackFile" class="java.io.File">
         <constructor-arg type="java.io.File" index="0" value="#{T(org.libresonic.player.service.SettingsService).libresonicHome}" />
