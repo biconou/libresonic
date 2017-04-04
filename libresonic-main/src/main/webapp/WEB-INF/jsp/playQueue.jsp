@@ -405,7 +405,15 @@
         });
     }
 
+    function isJavaJukeboxPresent() {
+        return $("#javaJukeboxPlayerControlBarContainer").length==1;
+    }
+
+
     function playQueueCallback(playQueue) {
+        if (isJavaJukeboxPresent()) {
+            updateJavaJukeboxPlayerControlBar(playQueue);
+        }
         songs = playQueue.entries;
         repeatEnabled = playQueue.repeatEnabled;
         radioEnabled = playQueue.radioEnabled;
@@ -670,7 +678,9 @@
 
 <c:choose>
     <c:when test="${model.player.javaJukebox}">
-        <%@ include file="javaJukeboxPlayerControlBar.jspf" %>
+        <div id="javaJukeboxPlayerControlBarContainer">
+            <%@ include file="javaJukeboxPlayerControlBar.jspf" %>
+        </div>
     </c:when>
     <c:otherwise>
         <div id="playerControlBar" class="bgcolor2" style="position:fixed; bottom:0; width:100%;padding-top:10px;padding-bottom: 5px">
