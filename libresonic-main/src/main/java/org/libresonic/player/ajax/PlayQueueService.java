@@ -672,7 +672,7 @@ public class PlayQueueService {
             gain = jukeboxJavaService.getGain();
         }
 
-        return new PlayQueueInfo(entries, isStopEnabled, playQueue.isRepeatEnabled(), playQueue.isRadioEnabled(), serverSidePlaylist, gain);
+        return new PlayQueueInfo(entries, playQueue.getIndex(),isStopEnabled, playQueue.isRepeatEnabled(), playQueue.isRadioEnabled(), serverSidePlaylist, gain);
     }
 
     private String formatFileSize(Long fileSize, Locale locale) {
