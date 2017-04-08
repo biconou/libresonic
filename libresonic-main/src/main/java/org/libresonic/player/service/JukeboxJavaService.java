@@ -125,6 +125,13 @@ public class JukeboxJavaService {
         }
     }
 
+    public void setPosition(int positionInSeconds) {
+        if (audioPlayer != null) {
+            audioPlayer.setPos(positionInSeconds);
+        }
+    }
+
+
     private void onSongStart(Player player,MediaFile file) {
         log.info("[onSongStart] {} starting jukebox for \"{}\"",player.getUsername(),FileUtil.getShortPath(file.getFile()));
         if (status != null) {

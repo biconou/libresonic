@@ -2,13 +2,19 @@
 
 
 function onJavaJukeboxVolumeChanged() {
-    var value = parseInt($("#javaJukeboxVolume").slider("option", "value"));
-    onGain(value / 100);
+    var value = $("#javaJukeboxVolumeSlider").slider("value");
+    var gain = value / 100;
+    playQueueService.setGain(gain);
+}
+
+function onJavaJukeboxPositionChanged() {
+    var pos = $("#javaJukeboxSongPositionSlider").slider("value");
+    playQueueService.setJavaJukeboxPosition(pos);
 }
 
 function updateJavaJukeboxPlayerControlBar(playQueue){
 console.log("updateJavaJukeboxPlayerControlBar");
-console.dir(playQueue);
+//console.dir(playQueue);
     if (playQueue != null) {
         var currentPlayQueueEntry = playQueue.entries[playQueue.index];
         if (currentPlayQueueEntry != null) {
@@ -17,23 +23,23 @@ console.dir(playQueue);
     }
 }
 
-function songDurationAsString(playQueueEntry) {
-    var songDuration = playQueueEntry.duration;
-    var m = moment.duration(songDuration, 'seconds');
-    return m.minutes() + ":" + m.seconds();
+function songTimeAsString(timeInSeconds) {
+    var m = moment.duration(timeInSeconds, 'seconds');
+    var seconds = m.seconds();
+    var secondsAsString = seconds;
+    if (seconds < 10) {
+        secondsAsString = "0" + seconds;
+    }
+    return m.minutes() + ":" + secondsAsString;
 }
 
-function songPositionAsString() {
-    var pos = $("#javaJukeboxSongPositionSlider").slider("value");
-    var m = moment.duration(pos, 'seconds');
-    return m.minutes() + ":" + m.seconds();
-}
 
 
 songPlayingTimerId = null;
 
 function newSongPlaying(playQueueEntry) {
-    $("#playingDurationDisplay").html(songDurationAsString(playQueueEntry));
+console.log("newSongPlaying");
+    $("#playingDurationDisplay").html(songTimeAsString(playQueueEntry.duration));
     $("#playingPositionDisplay").html("0:00");
 
     var songDuration = playQueueEntry.duration;
@@ -47,7 +53,7 @@ function newSongPlaying(playQueueEntry) {
 function songPlayingTimer() {
     var pos = $("#javaJukeboxSongPositionSlider").slider("value");
     $("#javaJukeboxSongPositionSlider").slider("value",pos + 1);
-    $("#playingPositionDisplay").html(songPositionAsString());
+    $("#playingPositionDisplay").html(songTimeAsString(pos + 1));
 }
 
 
@@ -55,6 +61,7 @@ function songPlayingTimer() {
 function initJavaJukeboxPlayerControlBar() {
     $("#javaJukeboxSongPositionSlider").slider({max: 100, value: 0, animate: "fast", range: "min"});
     $("#javaJukeboxSongPositionSlider").slider("value",0);
+    $("#javaJukeboxSongPositionSlider").on("slidestop", onJavaJukeboxPositionChanged);
 
     $("#javaJukeboxVolumeSlider").slider({max: 100, value: 50, animate: "fast", range: "min"});
     $("#javaJukeboxVolumeSlider").on("slidestop", onJavaJukeboxVolumeChanged);

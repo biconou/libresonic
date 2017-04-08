@@ -264,7 +264,6 @@
     </c:when>
     <c:otherwise>
         currentStreamUrl = songs[index].streamUrl;
-console.log("onSkip "+index);
         playQueueService.skip(index, playQueueCallback);
     </c:otherwise>
     </c:choose>

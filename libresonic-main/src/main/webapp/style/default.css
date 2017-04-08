@@ -393,11 +393,11 @@ img {
     width : 50px;
     font-size: 80%;
     text-align: right;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 #javaJukeboxSongPositionSlider {
     width : 200px;
     height : 4px;
-    padding-left: 20px;
-    padding-right: 20px;
 }

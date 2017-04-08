@@ -613,9 +613,14 @@ public class PlayQueueService {
     }
 
     public void setGain(float gain) {
-        // TODO faire la distinction entre les deux types de jukebox
-        //jukeboxService.setGain(gain);
+        // TODO We should determine what kind of jukebox it is but
+        // we don't have any information for that.
+        jukeboxService.setGain(gain);
         jukeboxJavaService.setGain(gain);
+    }
+
+    public void setJavaJukeboxPosition(int positionInSeconds) {
+        jukeboxJavaService.setPosition(positionInSeconds);
     }
 
     private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist) throws Exception {
