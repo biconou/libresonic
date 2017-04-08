@@ -17,15 +17,26 @@ console.dir(playQueue);
     }
 }
 
+function songDurationAsString(playQueueEntry) {
+    var songDuration = playQueueEntry.duration;
+    var m = moment.duration(songDuration, 'seconds');
+    return m.minutes() + ":" + m.seconds();
+}
+
+function songPositionAsString() {
+    var pos = $("#javaJukeboxSongPositionSlider").slider("value");
+    var m = moment.duration(pos, 'seconds');
+    return m.minutes() + ":" + m.seconds();
+}
+
+
 songPlayingTimerId = null;
 
 function newSongPlaying(playQueueEntry) {
-    var songDuration = playQueueEntry.duration;
-    var m = moment.duration(songDuration, 'seconds');
-    $("#playingPositionDisplay").html(0);
-    //$("#playingDurationDisplay").html(m.minutes() + ":" + m.seconds());
-    $("#playingDurationDisplay").html(songDuration);
+    $("#playingDurationDisplay").html(songDurationAsString(playQueueEntry));
+    $("#playingPositionDisplay").html("0:00");
 
+    var songDuration = playQueueEntry.duration;
     $("#javaJukeboxSongPositionSlider").slider({max: songDuration, value: 0, animate: "fast", range: "min"});
     if (songPlayingTimerId != null) {
         clearInterval(songPlayingTimerId);
@@ -36,7 +47,7 @@ function newSongPlaying(playQueueEntry) {
 function songPlayingTimer() {
     var pos = $("#javaJukeboxSongPositionSlider").slider("value");
     $("#javaJukeboxSongPositionSlider").slider("value",pos + 1);
-    $("#playingPositionDisplay").html(pos + 1);
+    $("#playingPositionDisplay").html(songPositionAsString());
 }
 
 

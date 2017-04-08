@@ -10,11 +10,11 @@
                     </select>
                 </td>
             </c:if>
-            <td><span id="playingPositionDisplay"/></td>
+            <td><span id="playingPositionDisplay" class="javaJukeBoxPlayerControlBarSongTime"/></td>
             <td style="white-space:nowrap;">
-                <div id="javaJukeboxSongPositionSlider" style="width:200px;height:4px"></div>
+                <div id="javaJukeboxSongPositionSlider"></div>
             </td>
-            <td><span id="playingDurationDisplay"/></td>
+            <td><span id="playingDurationDisplay" class="javaJukeBoxPlayerControlBarSongTime"/></td>
             <td style="white-space:nowrap;">
                 <img src="<spring:theme code="volumeImage"/>" alt="">
             </td>

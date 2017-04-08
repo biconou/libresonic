@@ -384,3 +384,20 @@ img {
 .context-menu-item {
     color: black;
 }
+
+/*
+ * Styles related to java jukebox controls
+ */
+
+.javaJukeBoxPlayerControlBarSongTime {
+    width : 50px;
+    font-size: 80%;
+    text-align: right;
+}
+
+#javaJukeboxSongPositionSlider {
+    width : 200px;
+    height : 4px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
