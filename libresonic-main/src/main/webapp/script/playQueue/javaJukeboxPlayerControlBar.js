@@ -1,5 +1,5 @@
 
-
+javaJukeboxPlayerCurrentStreamUrl = null;
 
 function onJavaJukeboxVolumeChanged() {
     var value = $("#javaJukeboxVolumeSlider").slider("value");
@@ -12,13 +12,13 @@ function onJavaJukeboxPositionChanged() {
     playQueueService.setJavaJukeboxPosition(pos);
 }
 
-function updateJavaJukeboxPlayerControlBar(playQueue){
+function updateJavaJukeboxPlayerControlBar(song){
 console.log("updateJavaJukeboxPlayerControlBar");
-//console.dir(playQueue);
-    if (playQueue != null) {
-        var currentPlayQueueEntry = playQueue.entries[playQueue.index];
-        if (currentPlayQueueEntry != null) {
-            newSongPlaying(currentPlayQueueEntry);
+    if (song != null) {
+        var playingStream = song.streamUrl;
+        if (playingStream != javaJukeboxPlayerCurrentStreamUrl) {
+            javaJukeboxPlayerCurrentStreamUrl = playingStream;
+            newSongPlaying(song);
         }
     }
 }
@@ -37,12 +37,12 @@ function songTimeAsString(timeInSeconds) {
 
 songPlayingTimerId = null;
 
-function newSongPlaying(playQueueEntry) {
+function newSongPlaying(song) {
 console.log("newSongPlaying");
-    $("#playingDurationDisplay").html(songTimeAsString(playQueueEntry.duration));
+    var songDuration = song.duration;
+    $("#playingDurationDisplay").html(songTimeAsString(songDuration));
     $("#playingPositionDisplay").html("0:00");
 
-    var songDuration = playQueueEntry.duration;
     $("#javaJukeboxSongPositionSlider").slider({max: songDuration, value: 0, animate: "fast", range: "min"});
     if (songPlayingTimerId != null) {
         clearInterval(songPlayingTimerId);

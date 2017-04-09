@@ -264,6 +264,9 @@
     </c:when>
     <c:otherwise>
         currentStreamUrl = songs[index].streamUrl;
+        if (isJavaJukeboxPresent()) {
+            updateJavaJukeboxPlayerControlBar(songs[index]);
+        }
         playQueueService.skip(index, playQueueCallback);
     </c:otherwise>
     </c:choose>
@@ -414,9 +417,6 @@
 
     function playQueueCallback(playQueue) {
 console.log("playQueueCallback");
-        if (isJavaJukeboxPresent()) {
-            updateJavaJukeboxPlayerControlBar(playQueue);
-        }
         songs = playQueue.entries;
         repeatEnabled = playQueue.repeatEnabled;
         radioEnabled = playQueue.radioEnabled;
@@ -463,6 +463,9 @@ console.log("playQueueCallback");
             } 
             if ($("#currentImage" + id) && song.streamUrl == currentStreamUrl) {
                 $("#currentImage" + id).show();
+                if (isJavaJukeboxPresent()) {
+                    updateJavaJukeboxPlayerControlBar(song);
+                }
             }
             if ($("#title" + id)) {
                 $("#title" + id).html(song.title);
