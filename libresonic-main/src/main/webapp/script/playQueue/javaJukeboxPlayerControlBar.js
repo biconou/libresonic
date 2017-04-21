@@ -23,6 +23,13 @@ function refreshView() {
     document.getElementById('pauseIcon').style.display = 'none';
     document.getElementById('startIcon').style.display = 'block';
   }
+  if (javaJukeboxPlayerModel.songDuration == null) {
+    $("#playingDurationDisplay").html("-:--");
+  } else {
+    $("#playingDurationDisplay").html(songTimeAsString(javaJukeboxPlayerModel.songDuration));
+  }
+  $("#playingPositionDisplay").html(songTimeAsString(javaJukeboxPlayerModel.songPosition));
+  $("#javaJukeboxSongPositionSlider").slider("value",javaJukeboxPlayerModel.songPosition);
 }
 
 function onJavaJukeboxStart() {
@@ -46,6 +53,8 @@ function onJavaJukeboxVolumeChanged() {
 function onJavaJukeboxPositionChanged() {
     var pos = $("#javaJukeboxSongPositionSlider").slider("value");
     playQueueService.setJavaJukeboxPosition(pos);
+    javaJukeboxPlayerModel.songPosition = pos;
+    refreshView();
 }
 
 function updateJavaJukeboxPlayerControlBar(song){
@@ -69,19 +78,16 @@ function songTimeAsString(timeInSeconds) {
 }
 
 function newSongPlaying(song) {
-    var songDuration = song.duration;
-    $("#playingDurationDisplay").html(songTimeAsString(songDuration));
-    $("#playingPositionDisplay").html("0:00");
-
-    $("#javaJukeboxSongPositionSlider").slider({max: songDuration, value: 0, animate: "fast", range: "min"});
+    javaJukeboxPlayerModel.songDuration = song.duration;
+    $("#javaJukeboxSongPositionSlider").slider({max: javaJukeboxPlayerModel.songDuration, value: 0, animate: "fast", range: "min"});
     javaJukeboxPlayerModel.playing = true;
+    javaJukeboxPlayerModel.songPosition = 0;
     refreshView();
 }
 
 function songPlayingTimer() {
-    var pos = $("#javaJukeboxSongPositionSlider").slider("value");
-    $("#javaJukeboxSongPositionSlider").slider("value",pos + 1);
-    $("#playingPositionDisplay").html(songTimeAsString(pos + 1));
+    javaJukeboxPlayerModel.songPosition += 1;
+    refreshView();
 }
 
 function initJavaJukeboxPlayerControlBar() {
@@ -92,6 +98,5 @@ function initJavaJukeboxPlayerControlBar() {
     $("#javaJukeboxVolumeSlider").slider({max: 100, value: 50, animate: "fast", range: "min"});
     $("#javaJukeboxVolumeSlider").on("slidestop", onJavaJukeboxVolumeChanged);
 
-    $("#playingPositionDisplay").html("0:00");
-    $("#playingDurationDisplay").html("-:--");
+    refreshView();
 }
