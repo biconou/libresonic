@@ -1,5 +1,41 @@
 
-javaJukeboxPlayerCurrentStreamUrl = null;
+var songPlayingTimerId = null;
+
+var javaJukeboxPlayerModel = {
+  currentStreamUrl : null,
+  playing : false,
+  songDuration : null,
+  songPosition : 0
+}
+
+function refreshView() {
+  if (javaJukeboxPlayerModel.playing == true) {
+    if (songPlayingTimerId == null) {
+      songPlayingTimerId = setInterval(songPlayingTimer, 1000);
+    }
+    document.getElementById('startIcon').style.display = 'none';
+    document.getElementById('pauseIcon').style.display = 'block';
+  } else {
+    if (songPlayingTimerId != null) {
+        clearInterval(songPlayingTimerId);
+        songPlayingTimerId = null;
+    }
+    document.getElementById('pauseIcon').style.display = 'none';
+    document.getElementById('startIcon').style.display = 'block';
+  }
+}
+
+function onJavaJukeboxStart() {
+  playQueueService.start();
+  javaJukeboxPlayerModel.playing = true;
+  refreshView();
+}
+
+function onJavaJukeboxStop() {
+  playQueueService.stop();
+  javaJukeboxPlayerModel.playing = false;
+  refreshView();
+}
 
 function onJavaJukeboxVolumeChanged() {
     var value = $("#javaJukeboxVolumeSlider").slider("value");
@@ -13,11 +49,10 @@ function onJavaJukeboxPositionChanged() {
 }
 
 function updateJavaJukeboxPlayerControlBar(song){
-console.log("updateJavaJukeboxPlayerControlBar");
     if (song != null) {
         var playingStream = song.streamUrl;
-        if (playingStream != javaJukeboxPlayerCurrentStreamUrl) {
-            javaJukeboxPlayerCurrentStreamUrl = playingStream;
+        if (playingStream != javaJukeboxPlayerModel.currentStreamUrl) {
+            javaJukeboxPlayerModel.currentStreamUrl = playingStream;
             newSongPlaying(song);
         }
     }
@@ -33,21 +68,14 @@ function songTimeAsString(timeInSeconds) {
     return m.minutes() + ":" + secondsAsString;
 }
 
-
-
-songPlayingTimerId = null;
-
 function newSongPlaying(song) {
-console.log("newSongPlaying");
     var songDuration = song.duration;
     $("#playingDurationDisplay").html(songTimeAsString(songDuration));
     $("#playingPositionDisplay").html("0:00");
 
     $("#javaJukeboxSongPositionSlider").slider({max: songDuration, value: 0, animate: "fast", range: "min"});
-    if (songPlayingTimerId != null) {
-        clearInterval(songPlayingTimerId);
-    }
-    songPlayingTimerId = setInterval(songPlayingTimer, 1000);
+    javaJukeboxPlayerModel.playing = true;
+    refreshView();
 }
 
 function songPlayingTimer() {
@@ -55,8 +83,6 @@ function songPlayingTimer() {
     $("#javaJukeboxSongPositionSlider").slider("value",pos + 1);
     $("#playingPositionDisplay").html(songTimeAsString(pos + 1));
 }
-
-
 
 function initJavaJukeboxPlayerControlBar() {
     $("#javaJukeboxSongPositionSlider").slider({max: 100, value: 0, animate: "fast", range: "min"});
@@ -69,5 +95,3 @@ function initJavaJukeboxPlayerControlBar() {
     $("#playingPositionDisplay").html("0:00");
     $("#playingDurationDisplay").html("-:--");
 }
-
-
