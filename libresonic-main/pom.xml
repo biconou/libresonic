@@ -36,7 +36,6 @@
             <groupId>com.github.biconou</groupId>
             <artifactId>AudioPlayer</artifactId>
             <version>0.2</version>
-            <classifier>library</classifier>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
