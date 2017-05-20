@@ -21,18 +21,23 @@ package org.libresonic.player.security;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
-import org.libresonic.player.Logger;
 import org.libresonic.player.controller.JAXBWriter;
 import org.libresonic.player.controller.RESTController;
 import org.libresonic.player.domain.User;
 import org.libresonic.player.domain.Version;
 import org.libresonic.player.service.SecurityService;
 import org.libresonic.player.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -55,12 +60,13 @@ import java.io.IOException;
  */
 public class RESTRequestParameterProcessingFilter implements Filter {
 
-    private static final Logger LOG = Logger.getLogger(RESTRequestParameterProcessingFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RESTRequestParameterProcessingFilter.class);
 
     private final JAXBWriter jaxbWriter = new JAXBWriter();
     private AuthenticationManager authenticationManager;
     private SecurityService securityService;
-    private LoginFailureLogger loginFailureLogger;
+    private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+    private ApplicationEventPublisher eventPublisher;
 
     private static RequestMatcher requiresAuthenticationRequestMatcher = new RegexRequestMatcher("/rest/.+",null);
 
@@ -110,15 +116,12 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         }
 
         if (errorCode == null) {
-            errorCode = authenticate(username, password, salt, token, previousAuth);
+            errorCode = authenticate(httpRequest, username, password, salt, token, previousAuth);
         }
 
         if (errorCode == null) {
             chain.doFilter(request, response);
         } else {
-            if (errorCode == RESTController.ErrorCode.NOT_AUTHENTICATED) {
-                loginFailureLogger.log(request.getRemoteAddr(), username);
-            }
             SecurityContextHolder.getContext().setAuthentication(null);
             sendErrorXml(httpRequest, httpResponse, errorCode);
         }
@@ -138,7 +141,7 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         return null;
     }
 
-    private RESTController.ErrorCode authenticate(String username, String password, String salt, String token, Authentication previousAuth) {
+    private RESTController.ErrorCode authenticate(HttpServletRequest httpRequest, String username, String password, String salt, String token, Authentication previousAuth) {
 
         // Previously authenticated and username not overridden?
         if (username == null && previousAuth != null) {
@@ -159,12 +162,14 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         }
 
         if (password != null) {
+            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+            authRequest.setDetails(authenticationDetailsSource.buildDetails(httpRequest));
             try {
-                UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
                 Authentication authResult = authenticationManager.authenticate(authRequest);
                 SecurityContextHolder.getContext().setAuthentication(authResult);
                 return null;
             } catch (AuthenticationException x) {
+                eventPublisher.publishEvent(new AuthenticationFailureBadCredentialsEvent(authRequest, x));
                 return RESTController.ErrorCode.NOT_AUTHENTICATED;
             }
         }
@@ -213,8 +218,7 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         this.securityService = securityService;
     }
 
-
-    public void setLoginFailureLogger(LoginFailureLogger loginFailureLogger) {
-        this.loginFailureLogger = loginFailureLogger;
+    public void setEventPublisher(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
     }
 }

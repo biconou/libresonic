@@ -20,7 +20,8 @@
 package org.libresonic.player.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.libresonic.player.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UrlPathHelper;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +39,7 @@ public class NetworkService {
     private static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
     private static final String X_FORWARDED_HOST = "X-Forwarded-Host";
 
-    private final static Logger LOG = Logger.getLogger(NetworkService.class);
+    private final static Logger LOG = LoggerFactory.getLogger(NetworkService.class);
 
     public static String getBaseUrl(HttpServletRequest request) {
         try {
@@ -60,8 +61,21 @@ public class NetworkService {
 
     private static URI calculateProxyUri(HttpServletRequest request) throws URISyntaxException {
         String xForardedHost = request.getHeader(X_FORWARDED_HOST);
+        // If the request has been through multiple reverse proxies,
+        // We need to return the original Host that the client used
+        if (xForardedHost != null) {
+            xForardedHost = xForardedHost.split(",")[0];
+        }
+
         if(!isValidXForwardedHost(xForardedHost)) {
             xForardedHost = request.getHeader(X_FORWARDED_SERVER);
+
+            // If the request has been through multiple reverse proxies,
+            // We need to return the original Host that the client used
+            if (xForardedHost != null) {
+                xForardedHost = xForardedHost.split(",")[0];
+            }
+
             if(!isValidXForwardedHost(xForardedHost)) {
                 throw new RuntimeException("Cannot calculate proxy uri without HTTP header " + X_FORWARDED_HOST);
             }
@@ -71,6 +85,9 @@ public class NetworkService {
         String host = proxyHost.getHost();
         int port = proxyHost.getPort();
         String scheme = request.getHeader(X_FORWARDED_PROTO);
+        if(StringUtils.isBlank(scheme)) {
+            throw new RuntimeException("Scheme not provided");
+        }
 
         return new URI(scheme, null, host, port, urlPathHelper.getContextPath(request), null, null);
     }

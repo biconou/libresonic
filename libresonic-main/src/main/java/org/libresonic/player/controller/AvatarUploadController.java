@@ -24,12 +24,13 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.libresonic.player.Logger;
+import org.apache.commons.lang3.StringUtils;
 import org.libresonic.player.domain.Avatar;
 import org.libresonic.player.service.SecurityService;
 import org.libresonic.player.service.SettingsService;
 import org.libresonic.player.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,7 +39,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -58,7 +58,7 @@ import java.util.Map;
 @RequestMapping("/avatarUpload")
 public class AvatarUploadController  {
 
-    private static final Logger LOG = Logger.getLogger(AvatarUploadController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AvatarUploadController.class);
     private static final int MAX_AVATAR_SIZE = 64;
 
     @Autowired
@@ -66,8 +66,8 @@ public class AvatarUploadController  {
     @Autowired
     private SecurityService securityService;
 
-    @RequestMapping(method = RequestMethod.GET)
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @RequestMapping(method = RequestMethod.POST)
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
 
         String username = securityService.getCurrentUsername(request);
 

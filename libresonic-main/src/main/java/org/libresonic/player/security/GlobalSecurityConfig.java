@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -37,14 +38,13 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     private CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
 
     @Autowired
-    LoginFailureLogger loginFailureLogger;
-
-    @Autowired
     SettingsService settingsService;
 
     @Autowired
     LibresonicUserDetailsContextMapper libresonicUserDetailsContextMapper;
 
+    @Autowired
+    ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -94,7 +94,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     .csrf().requireCsrfProtectionMatcher(csrfSecurityRequestMatcher).and()
                     .headers().frameOptions().sameOrigin().and()
                     .authorizeRequests()
-                    .antMatchers("/ext/stream/**", "/ext/coverArt.view", "/ext/share/**", "/ext/hls/**")
+                    .antMatchers("/ext/stream/**", "/ext/coverArt*", "/ext/share/**", "/ext/hls/**")
                     .hasAnyRole("TEMP", "USER").and()
                     .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                     .exceptionHandling().and()
@@ -115,7 +115,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             RESTRequestParameterProcessingFilter restAuthenticationFilter = new RESTRequestParameterProcessingFilter();
             restAuthenticationFilter.setAuthenticationManager(authenticationManagerBean());
             restAuthenticationFilter.setSecurityService(securityService);
-            restAuthenticationFilter.setLoginFailureLogger(loginFailureLogger);
+            restAuthenticationFilter.setEventPublisher(eventPublisher);
             http = http.addFilterBefore(restAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
             http
@@ -125,29 +125,29 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     .frameOptions()
                     .sameOrigin()
                     .and().authorizeRequests()
-                    .antMatchers("recover.view", "accessDenied.view",
+                    .antMatchers("/recover*", "/accessDenied*",
                             "/style/**", "/icons/**", "/flash/**", "/script/**",
                             "/sonos/**", "/crossdomain.xml", "/login", "/error")
                     .permitAll()
-                    .antMatchers("/personalSettings.view", "/passwordSettings.view",
-                            "/playerSettings.view", "/shareSettings.view", "/passwordSettings.view")
+                    .antMatchers("/personalSettings*", "/passwordSettings*",
+                            "/playerSettings*", "/shareSettings*", "/passwordSettings*")
                     .hasRole("SETTINGS")
-                    .antMatchers("/generalSettings.view", "/advancedSettings.view", "/userSettings.view",
-                            "/musicFolderSettings.view", "/databaseSettings.view")
+                    .antMatchers("/generalSettings*", "/advancedSettings*", "/userSettings*",
+                            "/musicFolderSettings*", "/databaseSettings*")
                     .hasRole("ADMIN")
-                    .antMatchers("/deletePlaylist.view", "/savePlaylist.view")
+                    .antMatchers("/deletePlaylist*", "/savePlaylist*", "/db*")
                     .hasRole("PLAYLIST")
-                    .antMatchers("/download.view")
+                    .antMatchers("/download*")
                     .hasRole("DOWNLOAD")
-                    .antMatchers("/upload.view")
+                    .antMatchers("/upload*")
                     .hasRole("UPLOAD")
-                    .antMatchers("/createShare.view")
+                    .antMatchers("/createShare*")
                     .hasRole("SHARE")
-                    .antMatchers("/changeCoverArt.view", "/editTags.view")
+                    .antMatchers("/changeCoverArt*", "/editTags*")
                     .hasRole("COVERART")
-                    .antMatchers("/setMusicFileInfo.view")
+                    .antMatchers("/setMusicFileInfo*")
                     .hasRole("COMMENT")
-                    .antMatchers("/podcastReceiverAdmin.view")
+                    .antMatchers("/podcastReceiverAdmin*")
                     .hasRole("PODCAST")
                     .antMatchers("/**")
                     .hasRole("USER")
@@ -155,7 +155,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     .and().formLogin()
                     .loginPage("/login")
                     .permitAll()
-                    .defaultSuccessUrl("/index.view", true)
+                    .defaultSuccessUrl("/index", true)
                     .failureUrl(FAILURE_URL)
                     .usernameParameter("j_username")
                     .passwordParameter("j_password")

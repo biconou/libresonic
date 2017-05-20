@@ -28,7 +28,6 @@ import org.apache.cxf.helpers.CastUtils;
 import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
-import org.libresonic.player.Logger;
 import org.libresonic.player.domain.AlbumListType;
 import org.libresonic.player.domain.MediaFile;
 import org.libresonic.player.domain.Playlist;
@@ -36,6 +35,8 @@ import org.libresonic.player.domain.User;
 import org.libresonic.player.service.sonos.SonosHelper;
 import org.libresonic.player.service.sonos.SonosServiceRegistration;
 import org.libresonic.player.service.sonos.SonosSoapFault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
 import javax.annotation.Resource;
@@ -61,7 +62,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  */
 public class SonosService implements SonosSoap {
 
-    private static final Logger LOG = Logger.getLogger(SonosService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SonosService.class);
 
     public static final String ID_ROOT = "root";
     public static final String ID_SHUFFLE = "shuffle";
@@ -106,7 +107,7 @@ public class SonosService implements SonosSoap {
     @Resource
     private WebServiceContext context;
 
-    public void setMusicServiceEnabled(boolean enabled) {
+    public void setMusicServiceEnabled(boolean enabled, String baseUrl) {
         List<String> sonosControllers = upnpService.getSonosControllerHosts();
         if (sonosControllers.isEmpty()) {
             LOG.info("No Sonos controller found");
@@ -116,11 +117,10 @@ public class SonosService implements SonosSoap {
 
         String sonosServiceName = settingsService.getSonosServiceName();
         int sonosServiceId = settingsService.getSonosServiceId();
-        String libresonicBaseUrl = NetworkService.getBaseUrl(getRequest());
 
         for (String sonosController : sonosControllers) {
             try {
-                new SonosServiceRegistration().setEnabled(libresonicBaseUrl, sonosController, enabled,
+                new SonosServiceRegistration().setEnabled(baseUrl, sonosController, enabled,
                                                           sonosServiceName, sonosServiceId);
                 break;
             } catch (IOException x) {
