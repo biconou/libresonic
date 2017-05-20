@@ -613,14 +613,23 @@ public class PlayQueueService {
     }
 
     public void setGain(float gain) {
-        // TODO We should determine what kind of jukebox it is but
-        // we don't have any information for that.
-        jukeboxService.setGain(gain);
-        jukeboxJavaService.setGain(gain);
+        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
+        Player player = getCurrentPlayer(request, response);
+        if (player != null) {
+            if (player.getTechnology().equals(PlayerTechnology.JAVA_JUKEBOX)) {
+                jukeboxJavaService.setGain(player,gain);
+            } else if (player.getTechnology().equals(PlayerTechnology.JUKEBOX)) {
+                jukeboxService.setGain(gain);
+            }
+        }
     }
 
     public void setJavaJukeboxPosition(int positionInSeconds) {
-        jukeboxJavaService.setPosition(positionInSeconds);
+        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
+        Player player = getCurrentPlayer(request, response);
+        jukeboxJavaService.setPosition(player,positionInSeconds);
     }
 
     private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist) throws Exception {
@@ -674,7 +683,7 @@ public class PlayQueueService {
         if (player.getTechnology() == PlayerTechnology.JUKEBOX) {
             gain = jukeboxService.getGain();
         } else if (player.getTechnology() == PlayerTechnology.JAVA_JUKEBOX) {
-            gain = jukeboxJavaService.getGain();
+            gain = jukeboxJavaService.getGain(player);
         }
 
         return new PlayQueueInfo(entries, playQueue.getIndex(),isStopEnabled, playQueue.isRepeatEnabled(), playQueue.isRadioEnabled(), serverSidePlaylist, gain);

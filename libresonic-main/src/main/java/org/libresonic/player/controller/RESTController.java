@@ -876,7 +876,7 @@ public class RESTController {
         } else if ("setGain".equals(action)) {
             float gain = getRequiredFloatParameter(request, "gain");
             if (isJavaJukebox) {
-                jukeboxJavaService.setGain(gain);
+                jukeboxJavaService.setGain(player,gain);
             } else {
                 jukeboxService.setGain(gain);
             }
@@ -905,8 +905,8 @@ public class RESTController {
         float gain = 0.0f;
         int position = 0;
         if (isJavaJukebox) {
-            gain = jukeboxJavaService.getGain();
-            position = controlsJukebox && !playQueue.isEmpty() ? jukeboxJavaService.getPosition() : 0;
+            gain = jukeboxJavaService.getGain(player);
+            position = controlsJukebox && !playQueue.isEmpty() ? jukeboxJavaService.getPosition(player) : 0;
         } else {
             gain = jukeboxService.getGain();
             position = controlsJukebox && !playQueue.isEmpty() ? jukeboxService.getPosition() : 0;

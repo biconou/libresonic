@@ -44,6 +44,7 @@ public class Player {
     private Date lastSeen;
     private TranscodeScheme transcodeScheme = TranscodeScheme.OFF;
     private PlayQueue playQueue;
+    private String javaJukeboxMixer;
 
     /**
      * Returns the player ID.
@@ -330,6 +331,16 @@ public class Player {
         return "Player " + id;
     }
 
+
+    public void setJavaJukeboxMixer(String javaJukeboxMixer) {
+        this.javaJukeboxMixer = javaJukeboxMixer;
+    }
+
+    public String getJavaJukeboxMixer() {
+        return javaJukeboxMixer;
+    }
+
+
     /**
      * Returns a string representation of the player.
      *
@@ -340,4 +351,5 @@ public class Player {
     public String toString() {
         return getDescription();
     }
+
 }

@@ -1,12 +1,16 @@
 package org.libresonic.player.service;
 
 import com.github.biconou.AudioPlayer.JavaPlayer;
-import com.github.biconou.AudioPlayer.api.PlayerListener;
+import com.github.biconou.AudioPlayer.api.*;
+import org.apache.commons.lang.StringUtils;
 import org.libresonic.player.domain.*;
+import org.libresonic.player.domain.Player;
 import org.libresonic.player.util.FileUtil;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Hashtable;
+import java.util.Map;
 
 
 /**
@@ -23,21 +27,35 @@ public class JukeboxJavaService {
     private SettingsService settingsService;
     private SecurityService securityService;
 
-    com.github.biconou.AudioPlayer.api.Player audioPlayer = null;
     private MediaFile currentPlayingFile;
     private TransferStatus status;
 
 
     private MediaFileService mediaFileService;
 
+    private Map<String, com.github.biconou.AudioPlayer.api.Player> activeAudioPlayers = new Hashtable<>();
+
+    private com.github.biconou.AudioPlayer.api.Player retrieveAudioPlayerForLibresonicPlayer(Player libresonicPlayer) {
+        com.github.biconou.AudioPlayer.api.Player foundPlayer = activeAudioPlayers.get(libresonicPlayer.getId());
+        if (foundPlayer == null) {
+            synchronized (activeAudioPlayers) {
+                foundPlayer = initAudioPlayer(libresonicPlayer);
+                if (foundPlayer == null) {
+                    throw new RuntimeException("Did not initialized a player");
+                } else {
+                    activeAudioPlayers.put(libresonicPlayer.getId(), foundPlayer);
+                }
+            }
+        }
+        return foundPlayer;
+    }
+
 
     public synchronized void updateJukebox(Player libresonicPlayer, int offset) throws Exception {
 
-        log.debug("begin updateJukebox");
+        log.debug("begin updateJukebox : player = id:{};name:{}",libresonicPlayer.getId(),libresonicPlayer.getName());
 
-        if (audioPlayer == null) {
-            initAudioPlayer(libresonicPlayer);
-        }
+        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForLibresonicPlayer(libresonicPlayer);
 
         // Control user authorizations
         User user = securityService.getUserByName(libresonicPlayer.getUsername());
@@ -83,41 +101,66 @@ public class JukeboxJavaService {
         }
     }
 
-    private void initAudioPlayer(final Player libresonicPlayer) {
-        audioPlayer = new JavaPlayer();
-        audioPlayer.registerListener(new PlayerListener() {
-            @Override
-            public void onBegin(int index, File currentFile) {
-                currentPlayingFile = libresonicPlayer.getPlayQueue().getCurrentFile();
-                onSongStart(libresonicPlayer, currentPlayingFile);
-            }
+    private com.github.biconou.AudioPlayer.api.Player initAudioPlayer(final Player libresonicPlayer) {
 
-            @Override
-            public void onEnd(int index, File file) {
-                onSongEnd(libresonicPlayer, currentPlayingFile);
-            }
+        if (!libresonicPlayer.getTechnology().equals(PlayerTechnology.JAVA_JUKEBOX)) {
+            throw new RuntimeException("The player "+libresonicPlayer.getName()+" is not a java jukebox player");
+        }
 
-            @Override
-            public void onFinished() {
-                // Nothing to do here
-            }
+        log.info("begin initAudioPlayer");
 
-            @Override
-            public void onStop() {
-                // Nothing to do here
-            }
+        com.github.biconou.AudioPlayer.api.Player audioPlayer;
 
-            @Override
-            public void onPause() {
-                // Nothing to do here
-            }
+        if (StringUtils.isNotBlank(libresonicPlayer.getJavaJukeboxMixer())) {
+            log.info("use mixer : {}",libresonicPlayer.getJavaJukeboxMixer());
+            audioPlayer = new JavaPlayer(libresonicPlayer.getJavaJukeboxMixer());
+        } else {
+            log.info("use default mixer");
+            audioPlayer = new JavaPlayer();
+        }
+        if (audioPlayer != null) {
+            audioPlayer.registerListener(new PlayerListener() {
+                @Override
+                public void onBegin(int index, File currentFile) {
+                    currentPlayingFile = libresonicPlayer.getPlayQueue().getCurrentFile();
+                    onSongStart(libresonicPlayer, currentPlayingFile);
+                }
 
-        });
-        log.debug("New audio player {} has been initialized.",audioPlayer.toString());
+                @Override
+                public void onEnd(int index, File file) {
+                    onSongEnd(libresonicPlayer, currentPlayingFile);
+                }
+
+                @Override
+                public void onFinished() {
+                    // Nothing to do here
+                }
+
+                @Override
+                public void onStop() {
+                    // Nothing to do here
+                }
+
+                @Override
+                public void onPause() {
+                    // Nothing to do here
+                }
+
+            });
+            log.info("New audio player {} has been initialized.", audioPlayer.toString());
+        } else {
+            throw new RuntimeException("AudioPlayer has not been initialized properly");
+        }
+        return audioPlayer;
     }
 
 
-    public synchronized int getPosition() {
+    public synchronized int getPosition(final Player libresonicPlayer) {
+
+        if (!libresonicPlayer.getTechnology().equals(PlayerTechnology.JAVA_JUKEBOX)) {
+            throw new RuntimeException("The player "+libresonicPlayer.getName()+" is not a java jukebox player");
+        }
+        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForLibresonicPlayer(libresonicPlayer);
         if (audioPlayer == null) {
             return 0;
         } else {
@@ -125,9 +168,39 @@ public class JukeboxJavaService {
         }
     }
 
-    public void setPosition(int positionInSeconds) {
+    public void setPosition(final Player libresonicPlayer,int positionInSeconds) {
+        if (!libresonicPlayer.getTechnology().equals(PlayerTechnology.JAVA_JUKEBOX)) {
+            throw new RuntimeException("The player "+libresonicPlayer.getName()+" is not a java jukebox player");
+        }
+        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForLibresonicPlayer(libresonicPlayer);
         if (audioPlayer != null) {
             audioPlayer.setPos(positionInSeconds);
+        } else {
+            throw new RuntimeException("The player "+libresonicPlayer.getName()+" has no real audio player");
+        }
+    }
+
+    public float getGain(final Player libresonicPlayer) {
+        if (!libresonicPlayer.getTechnology().equals(PlayerTechnology.JAVA_JUKEBOX)) {
+            throw new RuntimeException("The player "+libresonicPlayer.getName()+" is not a java jukebox player");
+        }
+        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForLibresonicPlayer(libresonicPlayer);
+        if (audioPlayer != null) {
+            return audioPlayer.getGain();
+        }
+        return 0.5f;
+    }
+
+    public synchronized void setGain(final Player libresonicPlayer, final float gain) {
+        if (!libresonicPlayer.getTechnology().equals(PlayerTechnology.JAVA_JUKEBOX)) {
+            throw new RuntimeException("The player "+libresonicPlayer.getName()+" is not a java jukebox player");
+        }
+        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForLibresonicPlayer(libresonicPlayer);
+        log.debug("setGain : gain={}",gain);
+        if (audioPlayer != null) {
+            audioPlayer.setGain(gain);
+        } else {
+            throw new RuntimeException("The player "+libresonicPlayer.getName()+" has no real audio player");
         }
     }
 
@@ -160,19 +233,6 @@ public class JukeboxJavaService {
         }
     }
 
-    public float getGain() {
-        if (audioPlayer != null) {
-            return audioPlayer.getGain();
-        }
-        return 0.5f;
-    }
-
-    public synchronized void setGain(float gain) {
-        log.debug("setGain : gain={}",gain);
-        if (audioPlayer != null) {
-            audioPlayer.setGain(gain);
-        }
-    }
 
 
     public void setAudioScrobblerService(AudioScrobblerService audioScrobblerService) {
