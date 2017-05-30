@@ -1,0 +1,42 @@
+#%RAML 1.0 Trait
+
+description: Trait that applies to all libresonic API request.
+queryParameters:
+    u:
+        description: The username.
+        type: string
+        required: true
+        example: admin
+    p:
+        description: >
+            The password, either in clear text or hex-encoded with a "enc:" prefix.
+            Since 1.13.0 this should only be used for testing purposes.
+        type: string
+        required: false
+        example: admin
+    t:
+        description: (Since 1.13.0) The authentication token computed as md5(password + salt).
+        type: string
+        required: false
+    s:
+        description: (Since 1.13.0) A random string ("salt") used as input for computing the password hash.
+        type: string
+        required: false
+    v:
+        description: API version requested.
+        type: string
+        required: true
+        default: 1.14.0
+    c:
+        description: application name.
+        type: string
+        required: true
+        example: testapp
+    f:
+        description: >
+            Request data to be returned in this format.
+            Supported values are "xml", "json" (since 1.4.0) and "jsonp" (since 1.6.0).
+            If using jsonp, specify name of javascript callback function using a callback parameter.
+        type: string
+        required: false
+        default: xml

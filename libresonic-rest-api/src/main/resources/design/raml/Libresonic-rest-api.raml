@@ -1,0 +1,58 @@
+#%RAML 0.8
+title: "Libresonic REST API"
+version: "1.14.0"
+baseUri: http://localhost:8080/
+resourceTypes:
+    - allType:
+        get:
+            responses:
+                200:
+                    body:
+                        application/xml:
+traits:
+    - allTrait:
+        queryParameters:
+            u:
+                description: user name
+                type: string
+                required: true
+                example: admin
+            p:
+                description: user password
+                type: string
+                required: true
+                example: admin
+            v:
+                description: API version requested
+                type: string
+                required: true
+                default: 1.14.0
+            c:
+                description: application name
+                type: string
+                required: true
+                example: testapp
+#
+# System
+#
+/rest/ping.view:
+    displayName: ping
+    description: Used to test connectivity with the server. Takes no extra parameters
+    type: allType
+    get:
+        is: [ allTrait ]
+/rest/getMusicFolders.view:
+    displayName: getMusicFolders
+    description: Get all music folders
+    get:
+        is: [ allTrait ]
+/rest/getAlbum.view:
+    displayName: getAlbum
+    description: Retrieve the description of an album
+    get:
+        is: [ allTrait ]
+        queryParameters:
+            id:
+                type: integer
+                required: true
+                example: 0

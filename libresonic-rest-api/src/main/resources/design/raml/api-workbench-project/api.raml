@@ -1,0 +1,104 @@
+#%RAML 1.0
+title: Libresonic
+version: 1.14.0
+baseUri: http://localhost:8080
+mediaType: [ application/json, application/xml, application/jsonp ]
+resourceTypes:
+  libresonicGeneralResourceType: !include resourceTypes/libresonicGeneralResourceType.raml
+traits:
+  libresonicGeneralTrait: !include traits/libresonicGeneralTrait.raml
+
+#
+# System
+#
+/rest/ping.view:
+  displayName: ping
+  description: Used to test connectivity with the server. Takes no extra parameters
+  type: libresonicGeneralResourceType
+  get:
+    is: [ libresonicGeneralTrait ]
+    responses:
+      200:
+        body:
+          application/xml:
+            example: |
+              <?xml version="1.0" encoding="UTF-8"?>
+              <subsonic-response xmlns="http://libresonic.org/restapi"
+                status="ok" version="1.14.0" type="Libresonic"/>
+          application/json:
+            example: |
+              {
+                 "subsonic-response" : {
+                    "status" : "ok",
+                    "version" : "1.14.0",
+                    "type" : "Libresonic"
+                 }
+              }
+#
+# Browsing
+#
+/rest/getMusicFolders.view:
+    displayName: getMusicFolders
+    description: Get all music folders
+    type: libresonicGeneralResourceType
+    get:
+        is: [ libresonicGeneralTrait ]
+/rest/getAlbum.view:
+    displayName: getAlbum
+    description: Retrieve the description of an album
+    type: libresonicGeneralResourceType
+    get:
+        is: [ libresonicGeneralTrait ]
+        queryParameters:
+            id:
+                description: The album ID
+                type: integer
+                required: true
+                example: 0
+#
+# Album/song lists
+#
+/rest/getAlbumList.view:
+  displayName: getAlbumList
+  description: >
+    Returns a list of random, newest, highest rated etc. albums.
+    Similar to the album lists on the home page of the Libresonic web interface.
+  type: libresonicGeneralResourceType
+  get:
+    is: [ libresonicGeneralTrait ]
+    queryParameters:
+      type:
+        description: >
+          The list type. Must be one of the following: random, newest, highest, frequent, recent.
+          Since 1.8.0 you can also use alphabeticalByName or alphabeticalByArtist to page through all albums alphabetically, and starred to retrieve starred albums.
+          Since 1.10.1 you can use byYear and byGenre to list albums in a given year range or genre.
+        type: string
+        required: true
+        example: random
+      size:
+        description: The number of albums to return. Max 500.
+        type: integer
+        required: false
+        default: 10
+      offset:
+        description: The list offset. Useful if you for example want to page through the list of newest albums.
+        type: integer
+        required: false
+        default: 0
+      fromYear:
+        description: The first year in the range. If fromYear > toYear a reverse chronological list is returned.
+        type: integer
+        required: false
+      toYear:
+        description: The last year in the range.
+        type: integer
+        required: false
+      genre:
+        description: The name of the genre, e.g., "Rock".
+        type: string
+        required: false
+        example: Rock
+      musicFolderId:
+        description: (Since 1.11.0) Only return albums in the music folder with the given ID. See getMusicFolders.
+        type: integer
+        required: false

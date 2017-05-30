@@ -1,0 +1,313 @@
+#%RAML 0.8
+title: "Libresonic REST API"
+version: "1.13.0"
+baseUri: http://localhost:8080/
+"/rest/ping.view":
+    displayName: "ping"
+    get:
+        queryParameters:
+            "v":
+                type: string
+                required: false
+                repeat: false
+            "u":
+                type: string
+                required: false
+                repeat: false
+            "c":
+                type: string
+                required: false
+                repeat: false
+            "p":
+                type: string
+                required: false
+                repeat: false
+        responses:
+            "200":
+                body:
+                    "text/xml;charset=UTF-8":
+/rest/getMusicFolders.view:
+    displayName: getMusicFolders
+    get:
+        queryParameters:
+            u:
+                type: string
+                required: true
+            p:
+                type: string
+                required: true
+            v:
+                type: string
+                required: true
+            c:
+                type: string
+                required: true
+        responses:
+            200:
+                body:
+                    "text/xml;charset=UTF-8":
+"/rest/getPlaylists.view":
+    displayName: "getPlaylists"
+    get: 
+        queryParameters: 
+            "v": 
+                type: string
+                required: false
+                repeat: false
+                default: "1.13.0"
+            "u": 
+                type: string
+                required: false
+                repeat: false
+                default: "admin"
+            "c": 
+                type: string
+                required: false
+                repeat: false
+                default: "soapui"
+            "p": 
+                type: string
+                required: false
+                repeat: false
+                default: "admin"
+        responses: 
+            "404": 
+                body: 
+                    "text/html; charset=iso-8859-1": 
+            "200": 
+                body: 
+                    "text/xml;charset=UTF-8": 
+"/rest/getPodcasts.view": 
+    displayName: "getPodcasts"
+    get: 
+        queryParameters: 
+            "id": 
+                type: string
+                required: false
+                repeat: false
+            "includeEpisodes": 
+                type: string
+                required: false
+                repeat: false
+                default: "false"
+            "v": 
+                type: string
+                required: false
+                repeat: false
+                default: "1.2.0"
+            "u": 
+                type: string
+                required: false
+                repeat: false
+                default: "remi"
+            "c": 
+                type: string
+                required: false
+                repeat: false
+                default: "myapp"
+            "p": 
+                type: string
+                required: false
+                repeat: false
+                default: "Mozart*1"
+        responses: 
+            "404": 
+                body: 
+                    "text/html; charset=iso-8859-1": 
+            "200": 
+                body: 
+                    "text/xml;charset=UTF-8": 
+"/rest/getAlbumList.view": 
+    displayName: "getAlbumList"
+    get: 
+        queryParameters: 
+            "genre": 
+                type: string
+                required: false
+                repeat: false
+            "v": 
+                type: string
+                required: false
+                repeat: false
+                default: "1.13.0"
+            "u": 
+                type: string
+                required: false
+                repeat: false
+                default: "admin"
+            "c": 
+                type: string
+                required: false
+                repeat: false
+                default: "soapui"
+            "musicFolderId": 
+                type: string
+                required: false
+                repeat: false
+            "p": 
+                type: string
+                required: false
+                repeat: false
+                default: "admin"
+            "toYear": 
+                type: string
+                required: false
+                repeat: false
+            "offset": 
+                type: string
+                required: false
+                repeat: false
+            "type": 
+                type: string
+                required: false
+                repeat: false
+            "fromYear": 
+                type: string
+                required: false
+                repeat: false
+            "size": 
+                type: string
+                required: false
+                repeat: false
+        responses: 
+            "200": 
+                body: 
+                    "text/xml;charset=UTF-8": 
+            "500": 
+                body: 
+                    "application/json;charset=UTF-8": 
+"/rest/getRandomSongs.view": 
+    displayName: "getRandomSongs"
+    get: 
+        queryParameters: 
+            "genre": 
+                type: string
+                required: false
+                repeat: false
+            "v": 
+                type: string
+                required: true
+                repeat: false
+                default: "1.13.0"
+            "u": 
+                type: string
+                required: true
+                repeat: false
+                default: "admin"
+            "c": 
+                type: string
+                required: true
+                repeat: false
+                default: "soapui"
+            "musicFolderId": 
+                type: string
+                required: false
+                repeat: false
+            "p": 
+                type: string
+                required: true
+                repeat: false
+                default: "admin"
+            "toYear": 
+                type: string
+                required: false
+                repeat: false
+            "offset": 
+                type: string
+                required: false
+                repeat: false
+            "type": 
+                type: string
+                required: true
+                repeat: false
+            "fromYear": 
+                type: string
+                required: false
+                repeat: false
+            "size": 
+                type: string
+                required: false
+                repeat: false
+        responses: 
+            "200": 
+                body: 
+                    "text/xml;charset=UTF-8": 
+"/rest/getSongsByGenre.view": 
+    displayName: "getSongsByGenre"
+    get: 
+        queryParameters: 
+            "genre": 
+                type: string
+                required: false
+                repeat: false
+            "v": 
+                type: string
+                required: false
+                repeat: false
+                default: "1.13.0"
+            "u": 
+                type: string
+                required: false
+                repeat: false
+                default: "admin"
+            "count": 
+                type: string
+                required: false
+                repeat: false
+            "c": 
+                type: string
+                required: false
+                repeat: false
+                default: "soapui"
+            "musicFolderId": 
+                type: string
+                required: false
+                repeat: false
+            "p": 
+                type: string
+                required: false
+                repeat: false
+                default: "admin"
+            "offset": 
+                type: string
+                required: false
+                repeat: false
+        responses: 
+            "503": 
+                body: 
+                    "text/html; charset=iso-8859-1": 
+            "200": 
+                body: 
+                    "text/xml;charset=UTF-8": 
+"/rest/getAlbum.view":
+    displayName: "getAlbum"
+    get: 
+        queryParameters: 
+            "id": 
+                type: string
+                required: false
+                repeat: false
+            "v": 
+                type: string
+                required: false
+                repeat: false
+                default: "1.13.0"
+            "u": 
+                type: string
+                required: false
+                repeat: false
+                default: "admin"
+            "c": 
+                type: string
+                required: false
+                repeat: false
+                default: "soapui"
+            "p": 
+                type: string
+                required: false
+                repeat: false
+                default: "admin"
+        responses: 
+            "200": 
+                body: 
+                    "text/xml;charset=UTF-8": 
