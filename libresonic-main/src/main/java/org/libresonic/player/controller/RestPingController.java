@@ -19,19 +19,11 @@
  */
 package org.libresonic.player.controller;
 
-import org.libresonic.player.domain.User;
 import org.libresonic.player.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controller for the page used to play videos.
@@ -46,15 +38,10 @@ public class RestPingController {
     @Autowired
     private SecurityService securityService;
 
-    @RequestMapping(method = RequestMethod.GET)
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @GetMapping
+    protected String handleRequestInternal() throws Exception {
 
-        User user = securityService.getCurrentUser(request);
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        map.put("user", user);
-
-        return new ModelAndView("restPing", "model", map);
+        return "restPing";
     }
 
 }
